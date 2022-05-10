@@ -89,7 +89,7 @@ public class RecipeDAO extends DAO {
 	}
 
 	public int getRecipeId(String name, String user_id) {
-		int recipe_id = ((RecipeDTO) readContent("SELECT recipe_id FROM recipes WHERE recipe_name = ? AND user_id = ?",
+		int recipe_id = ((RecipeDTO) getDTOs("SELECT recipe_id FROM recipes WHERE recipe_name = ? AND user_id = ?",
 				e -> {
 					try {
 						e.setString(1, name);
@@ -128,11 +128,11 @@ public class RecipeDAO extends DAO {
 
 	// reading content
 	public List<RecipeDTO> getRecipes() {
-		return readContent("SELECT * FROM recipes", RecipeDTO.class);
+		return getDTOs("SELECT * FROM recipes", RecipeDTO.class);
 	}
 
 	public RecipeDTO getRecipe(int recipe_id) {
-		return (RecipeDTO) readContent("SELECT * FROM recipes WHERE recipe_id = ?", e -> {
+		return (RecipeDTO) getDTOs("SELECT * FROM recipes WHERE recipe_id = ?", e -> {
 			try {
 				e.setInt(1, recipe_id);
 			} catch (SQLException e1) {
@@ -142,7 +142,7 @@ public class RecipeDAO extends DAO {
 	}
 
 	public List<RecipeDTO> getRecipesFilterName(String name) {
-		return readContent("SELECT * FROM recipes WHERE recipe_name LIKE  ?", e -> {
+		return getDTOs("SELECT * FROM recipes WHERE recipe_name LIKE  ?", e -> {
 			try {
 				e.setString(1, "%" + name + "%");
 			} catch (SQLException ex) {
@@ -152,7 +152,7 @@ public class RecipeDAO extends DAO {
 	}
 
 	public List<RecipeDTO> getRecipesFilterIngredient(String ingredient) {
-		return readContent(
+		return getDTOs(
 				"SELECT * FROM recipes r INNER JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id WHERE ri.ingredient_name = ?",
 				e -> {
 					try {
@@ -164,7 +164,7 @@ public class RecipeDAO extends DAO {
 	}
 
 	public List<RecipeDTO> getRecipesFilterAuthor(String author) {
-		return readContent("SELECT * FROM recipes WHERE user_id =  ?", e -> {
+		return getDTOs("SELECT * FROM recipes WHERE user_id =  ?", e -> {
 			try {
 				e.setString(1, author);
 			} catch (SQLException ex) {
@@ -174,7 +174,7 @@ public class RecipeDAO extends DAO {
 	}
 
 	public int getLikeCnt(int recipe_id) {
-		int cnt = readContent("SELECT * FROM recipe_likes WHERE recipe_id = ?", e -> {
+		int cnt = getDTOs("SELECT * FROM recipe_likes WHERE recipe_id = ?", e -> {
 			try {
 				e.setInt(1, recipe_id);
 			} catch (SQLException ex) {
@@ -186,7 +186,7 @@ public class RecipeDAO extends DAO {
                     
                 
 	public byte[] getImage(int recipe_id) {
-		return ((RecipeDTO) readContent("SELECT image FROM recipes WHERE recipe_id = ?", e -> {
+		return ((RecipeDTO) getDTOs("SELECT image FROM recipes WHERE recipe_id = ?", e -> {
 			try {
 				e.setInt(1, recipe_id);
 			} catch (SQLException e1) {
@@ -196,7 +196,7 @@ public class RecipeDAO extends DAO {
 	}
 
 	public List<Recipe_IngredientDTO> getIngredients(int recipe_id) {
-		return readContent("SELECT * FROM recipe_ingredients WHERE recipe_id = ?", e -> {
+		return getDTOs("SELECT * FROM recipe_ingredients WHERE recipe_id = ?", e -> {
 			try {
 				e.setInt(1, recipe_id);
 			} catch (SQLException e1) {

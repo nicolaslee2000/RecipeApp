@@ -3,6 +3,7 @@ package gui;
 
 import DTO.RecipeDTO;
 import DTO.Recipe_IngredientDTO;
+import DTO.Recipe_bookmarkDTO;
 import DTO.Recipe_reviewDTO;
 import controllers.AdminController;
 import controllers.UserController;

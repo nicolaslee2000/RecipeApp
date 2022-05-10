@@ -38,21 +38,19 @@ public class UserDAO extends DAO implements Authentication{
 		});
 	}
 	
-	private void checkId(String user_id) {
-		for(Object o : readContent("SELECT * FROM users WHERE user_id = '" + user_id + "'", UserDTO.class)) {
+	private void checkId(String user_id) throws InputMismatchException{
+		if(isExists("SELECT * FROM users WHERE user_id = '" + user_id + "'"))
 			throw new InputMismatchException("ID taken!");
-		}
 	}
 	
 	private void checkEmail(String email) {
-		for(Object o : readContent("SELECT * FROM users WHERE email = '" + email + "'", UserDTO.class)) {
+		if(isExists("SELECT * FROM users WHERE email = '" + email + "'"))
 			throw new InputMismatchException("Email taken!");
-		}
 	}
 	
 	
 	public boolean checkUser(String user_id, String password) {
-		List<UserDTO> users = readContent("SELECT * FROM users", UserDTO.class);
+		List<UserDTO> users = getDTOs("SELECT * FROM users", UserDTO.class);
 		for(UserDTO user : users) {
 			if(user.getUser_id().equals(user_id)) {
 				byte[] salt = user.getSalt();
@@ -91,7 +89,7 @@ public class UserDAO extends DAO implements Authentication{
                 }
         
                     public List<Recipe_likeDTO> getLikes(int recipe_id, String user_id) {
-                        return readContent("SELECT * FROM recipe_likes WHERE recipe_id = ? AND user_id = ?", e -> {
+                        return getDTOs("SELECT * FROM recipe_likes WHERE recipe_id = ? AND user_id = ?", e -> {
                             try {
                                 e.setInt(1, recipe_id);
                                 e.setString(2, user_id);
@@ -102,7 +100,7 @@ public class UserDAO extends DAO implements Authentication{
                     }
                     
                     public List<Recipe_bookmarkDTO> getBookmarks(int recipe_id, String user_id) {
-                        return readContent("SELECT * FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?", e -> {
+                        return getDTOs("SELECT * FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?", e -> {
                             try {
                                 e.setInt(1, recipe_id);
                                 e.setString(2, user_id);
@@ -113,7 +111,7 @@ public class UserDAO extends DAO implements Authentication{
                     }
                     
                     public List<Recipe_reviewDTO> getReviews(int recipe_id, String user_id) {
-                        return readContent("SELECT * FROM recipe_reviews WHERE recipe_id = ? AND user_id = ?", e -> {
+                        return getDTOs("SELECT * FROM recipe_reviews WHERE recipe_id = ? AND user_id = ?", e -> {
                             try {
                                 e.setInt(1, recipe_id);
                                 e.setString(2, user_id);
@@ -123,7 +121,7 @@ public class UserDAO extends DAO implements Authentication{
                         },Recipe_reviewDTO.class);
                     }
                     public List<Recipe_reviewDTO> getReviews(int recipe_id) {
-                        return readContent("SELECT * FROM recipe_reviews WHERE recipe_id = ?", e -> {
+                        return getDTOs("SELECT * FROM recipe_reviews WHERE recipe_id = ?", e -> {
                             try {
                                 e.setInt(1, recipe_id);
                             } catch (SQLException ex) {
@@ -133,7 +131,7 @@ public class UserDAO extends DAO implements Authentication{
                     }
                     
                     public List<Recipe_reportDTO> getReports(int recipe_id, String user_id) {
-                         return readContent("SELECT * FROM recipe_reports WHERE recipe_id = ? AND reporting_user_id = ?", e -> {
+                         return getDTOs("SELECT * FROM recipe_reports WHERE recipe_id = ? AND reporting_user_id = ?", e -> {
                             try {
                                 e.setInt(1, recipe_id);
                                 e.setString(2, user_id);

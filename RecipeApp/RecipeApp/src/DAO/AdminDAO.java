@@ -13,7 +13,7 @@ public class AdminDAO extends DAO implements Authentication{
 	}
 	
 	public boolean checkAdmin(String username, String password) {
-		List<AdminDTO> admins = getDTOs("SELECT * FROM admins", AdminDTO.class);
+		List<AdminDTO> admins = getDTOs(AdminDTO.class, "SELECT * FROM admins");
 		for(AdminDTO admin : admins) {
 			if(admin.getAdmin_id().equals(username)) {
 				byte[] salt = admin.getSalt();

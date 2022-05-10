@@ -89,15 +89,8 @@ public class RecipeDAO extends DAO {
 	}
 
 	public int getRecipeId(String name, String user_id) {
-		int recipe_id = ((RecipeDTO) getDTOs("SELECT recipe_id FROM recipes WHERE recipe_name = ? AND user_id = ?",
-				e -> {
-					try {
-						e.setString(1, name);
-						e.setString(2, user_id);
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-				}, RecipeDTO.class).get(0)).getRecipe_id();
+		int recipe_id = ((RecipeDTO) getDTOs(RecipeDTO.class, "SELECT recipe_id FROM recipes WHERE recipe_name = ? AND user_id = ?"
+				, name, user_id).get(0)).getRecipe_id();
 		return recipe_id;
 	}
 
@@ -128,81 +121,40 @@ public class RecipeDAO extends DAO {
 
 	// reading content
 	public List<RecipeDTO> getRecipes() {
-		return getDTOs("SELECT * FROM recipes", RecipeDTO.class);
+		return getDTOs(RecipeDTO.class, "SELECT * FROM recipes");
 	}
 
 	public RecipeDTO getRecipe(int recipe_id) {
-		return (RecipeDTO) getDTOs("SELECT * FROM recipes WHERE recipe_id = ?", e -> {
-			try {
-				e.setInt(1, recipe_id);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		}, RecipeDTO.class).get(0);
+		return (RecipeDTO) getDTOs(RecipeDTO.class, "SELECT * FROM recipes WHERE recipe_id = ?", recipe_id).get(0);
 	}
 
 	public List<RecipeDTO> getRecipesFilterName(String name) {
-		return getDTOs("SELECT * FROM recipes WHERE recipe_name LIKE  ?", e -> {
-			try {
-				e.setString(1, "%" + name + "%");
-			} catch (SQLException ex) {
-				ex.printStackTrace();
-			}
-		}, RecipeDTO.class);
+		return getDTOs(RecipeDTO.class, "SELECT * FROM recipes WHERE recipe_name LIKE  ?", name);
 	}
 
 	public List<RecipeDTO> getRecipesFilterIngredient(String ingredient) {
-		return getDTOs(
+		return getDTOs(RecipeDTO.class, 
 				"SELECT * FROM recipes r INNER JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id WHERE ri.ingredient_name = ?",
-				e -> {
-					try {
-						e.setString(1, ingredient);
-					} catch (SQLException ex) {
-						ex.printStackTrace();
-					}
-				}, RecipeDTO.class);
+				ingredient);
 	}
 
 	public List<RecipeDTO> getRecipesFilterAuthor(String author) {
-		return getDTOs("SELECT * FROM recipes WHERE user_id =  ?", e -> {
-			try {
-				e.setString(1, author);
-			} catch (SQLException ex) {
-				ex.printStackTrace();
-			}
-		}, RecipeDTO.class);
+		return getDTOs(RecipeDTO.class, "SELECT * FROM recipes WHERE user_id =  ?", author);
 	}
 
 	public int getLikeCnt(int recipe_id) {
-		int cnt = getDTOs("SELECT * FROM recipe_likes WHERE recipe_id = ?", e -> {
-			try {
-				e.setInt(1, recipe_id);
-			} catch (SQLException ex) {
-			}
-		}, Recipe_likeDTO.class).size();
+		int cnt = getDTOs(Recipe_likeDTO.class, "SELECT * FROM recipe_likes WHERE recipe_id = ?", recipe_id).size();
 		return cnt;
 	}
 
                     
                 
 	public byte[] getImage(int recipe_id) {
-		return ((RecipeDTO) getDTOs("SELECT image FROM recipes WHERE recipe_id = ?", e -> {
-			try {
-				e.setInt(1, recipe_id);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		}, RecipeDTO.class).get(0)).getImage();
+		return ((RecipeDTO) getDTOs(RecipeDTO.class, "SELECT image FROM recipes WHERE recipe_id = ?", recipe_id).get(0)).getImage();
 	}
 
 	public List<Recipe_IngredientDTO> getIngredients(int recipe_id) {
-		return getDTOs("SELECT * FROM recipe_ingredients WHERE recipe_id = ?", e -> {
-			try {
-				e.setInt(1, recipe_id);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		}, Recipe_IngredientDTO.class);
+		return getDTOs(Recipe_IngredientDTO.class, "SELECT * FROM recipe_ingredients WHERE recipe_id = ?", recipe_id);
 	}
                   
                    

@@ -13,18 +13,19 @@ import DTO.UserDTO;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UserDAO extends DAO implements Authentication{
-	
+public class UserDAO extends DAO implements Authentication {
+
 	public UserDAO(String username, String password) {
 		super(username, password);
 	}
 
-	public void createUser(String user_id, String password, String email, String language) throws InputMismatchException{
+	public void createUser(String user_id, String password, String email, String language)
+			throws InputMismatchException {
 		byte[] salt = generateSalt();
 		byte[] hash = generateHash(password, salt);
 		checkId(user_id);
 		checkEmail(email);
-		
+
 		updateTable("INSERT INTO users(user_id, user_pwd, email, salt, language) VALUES(?,?,?,?,?)", e -> {
 			try {
 				e.setString(1, user_id);
@@ -37,33 +38,33 @@ public class UserDAO extends DAO implements Authentication{
 			}
 		});
 	}
-	
-	private void checkId(String user_id) throws InputMismatchException{
-		if(isExists("SELECT * FROM users WHERE user_id = ?", user_id))
+
+	private void checkId(String user_id) throws InputMismatchException {
+		if (isExists("SELECT * FROM users WHERE user_id = ?", user_id))
 			throw new InputMismatchException("ID taken!");
 	}
-	
+
 	private void checkEmail(String email) {
-		if(isExists("SELECT * FROM users WHERE email = ?", email))
+		if (isExists("SELECT * FROM users WHERE email = ?", email))
 			throw new InputMismatchException("Email taken!");
 	}
-	
-	
+
+	// TODO
 	public boolean checkUser(String user_id, String password) {
-		List<UserDTO> users = getDTOs("SELECT * FROM users", UserDTO.class);
-		for(UserDTO user : users) {
-			if(user.getUser_id().equals(user_id)) {
+		List<UserDTO> users = getDTOs(UserDTO.class, "SELECT * FROM users");
+		for (UserDTO user : users) {
+			if (user.getUser_id().equals(user_id)) {
 				byte[] salt = user.getSalt();
 				byte[] hash = generateHash(password, salt);
-				if(Arrays.equals(hash, user.getUser_pwd())) {
+				if (Arrays.equals(hash, user.getUser_pwd())) {
 					return true;
-				} 
+				}
 			}
 		}
 		return false;
 	}
-	
-	//weak entities
+
+	// weak entities
 	public void setRecipe_review(int recipe_id, String user_id, String review) {
 		updateTable("INSERT INTO recipe_reviews VALUES(?,?,?)", e -> {
 			try {
@@ -76,8 +77,8 @@ public class UserDAO extends DAO implements Authentication{
 		});
 	}
 
-                public void updateRecipe_review(int recipe_id, String user_id, String review) {
-                    updateTable("UPDATE recipe_reviews SET review = ? WHERE recipe_id = ? AND user_id = ?", e -> {
+	public void updateRecipe_review(int recipe_id, String user_id, String review) {
+		updateTable("UPDATE recipe_reviews SET review = ? WHERE recipe_id = ? AND user_id = ?", e -> {
 			try {
 				e.setString(1, review);
 				e.setInt(2, recipe_id);
@@ -86,60 +87,32 @@ public class UserDAO extends DAO implements Authentication{
 				e1.printStackTrace();
 			}
 		});
-                }
-        
-                    public List<Recipe_likeDTO> getLikes(int recipe_id, String user_id) {
-                        return getDTOs("SELECT * FROM recipe_likes WHERE recipe_id = ? AND user_id = ?", e -> {
-                            try {
-                                e.setInt(1, recipe_id);
-                                e.setString(2, user_id);
-                            } catch (SQLException ex) {
-                                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        },Recipe_likeDTO.class);
-                    }
-                    
-                    public List<Recipe_bookmarkDTO> getBookmarks(int recipe_id, String user_id) {
-                        return getDTOs("SELECT * FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?", e -> {
-                            try {
-                                e.setInt(1, recipe_id);
-                                e.setString(2, user_id);
-                            } catch (SQLException ex) {
-                                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        },Recipe_bookmarkDTO.class);
-                    }
-                    
-                    public List<Recipe_reviewDTO> getReviews(int recipe_id, String user_id) {
-                        return getDTOs("SELECT * FROM recipe_reviews WHERE recipe_id = ? AND user_id = ?", e -> {
-                            try {
-                                e.setInt(1, recipe_id);
-                                e.setString(2, user_id);
-                            } catch (SQLException ex) {
-                                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        },Recipe_reviewDTO.class);
-                    }
-                    public List<Recipe_reviewDTO> getReviews(int recipe_id) {
-                        return getDTOs("SELECT * FROM recipe_reviews WHERE recipe_id = ?", e -> {
-                            try {
-                                e.setInt(1, recipe_id);
-                            } catch (SQLException ex) {
-                                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        },Recipe_reviewDTO.class);
-                    }
-                    
-                    public List<Recipe_reportDTO> getReports(int recipe_id, String user_id) {
-                         return getDTOs("SELECT * FROM recipe_reports WHERE recipe_id = ? AND reporting_user_id = ?", e -> {
-                            try {
-                                e.setInt(1, recipe_id);
-                                e.setString(2, user_id);
-                            } catch (SQLException ex) {
-                                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        },Recipe_reportDTO.class);
-                    }
+	}
+
+	public List<Recipe_likeDTO> getLikes(int recipe_id, String user_id) {
+		return getDTOs(Recipe_likeDTO.class, "SELECT * FROM recipe_likes WHERE recipe_id = ? AND user_id = ?",
+				recipe_id, user_id);
+	}
+
+	public List<Recipe_bookmarkDTO> getBookmarks(int recipe_id, String user_id) {
+		return getDTOs(Recipe_bookmarkDTO.class, "SELECT * FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?",
+				recipe_id, user_id);
+	}
+
+	public List<Recipe_reviewDTO> getReviews(int recipe_id, String user_id) {
+		return getDTOs(Recipe_reviewDTO.class, "SELECT * FROM recipe_reviews WHERE recipe_id = ? AND user_id = ?",
+				recipe_id, user_id);
+	}
+
+	public List<Recipe_reviewDTO> getReviews(int recipe_id) {
+		return getDTOs(Recipe_reviewDTO.class, "SELECT * FROM recipe_reviews WHERE recipe_id = ?", recipe_id);
+	}
+
+	public List<Recipe_reportDTO> getReports(int recipe_id, String user_id) {
+		return getDTOs(Recipe_reportDTO.class,
+				"SELECT * FROM recipe_reports WHERE recipe_id = ? AND reporting_user_id = ?", recipe_id, user_id);
+	}
+
 	public void setRecipe_like(int recipe_id, String user_id) {
 		updateTable("INSERT INTO recipe_likes VALUES(?,?)", e -> {
 			try {
@@ -150,20 +123,18 @@ public class UserDAO extends DAO implements Authentication{
 			}
 		});
 	}
-	
-                public void deleteRecipe_like(int recipe_id, String user_id) {
-                        updateTable("DELETE FROM recipe_likes WHERE recipe_id = ? AND user_id = ?", e -> {
-                            try {
-                                e.setInt(1, recipe_id);
-                                e.setString(2, user_id);
-                            } catch (SQLException ex) {
-                                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        });
-                }
-	
-                
-                
+
+	public void deleteRecipe_like(int recipe_id, String user_id) {
+		updateTable("DELETE FROM recipe_likes WHERE recipe_id = ? AND user_id = ?", e -> {
+			try {
+				e.setInt(1, recipe_id);
+				e.setString(2, user_id);
+			} catch (SQLException ex) {
+				Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		});
+	}
+
 	public void setRecipe_report(int recipe_id, String user_id, String reasonForReport) {
 		updateTable("INSERT INTO recipe_reports VALUES(?,?,?)", e -> {
 			try {
@@ -175,7 +146,7 @@ public class UserDAO extends DAO implements Authentication{
 			}
 		});
 	}
-	
+
 	public void setRecipe_bookmark(int recipe_id, String user_id) {
 		updateTable("INSERT INTO recipe_bookmarks VALUES(?,?)", e -> {
 			try {
@@ -186,15 +157,15 @@ public class UserDAO extends DAO implements Authentication{
 			}
 		});
 	}
-        
-        public void deleteRecipe_bookmark(int recipe_id, String user_id) {
-            updateTable("DELETE FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?", e -> {
-                            try {
-                                e.setInt(1, recipe_id);
-                                e.setString(2, user_id);
-                            } catch (SQLException ex) {
-                                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        });
-        }
+
+	public void deleteRecipe_bookmark(int recipe_id, String user_id) {
+		updateTable("DELETE FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?", e -> {
+			try {
+				e.setInt(1, recipe_id);
+				e.setString(2, user_id);
+			} catch (SQLException ex) {
+				Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		});
+	}
 }

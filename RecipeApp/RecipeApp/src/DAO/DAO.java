@@ -45,36 +45,11 @@ public abstract class DAO {
 		return false;
 	}
 	
-	protected <T> List<T> getDTOs(String query, Class<?> c) {
+	protected <T> List<T> getDTOs(Class<?> c, String query, Object... obj) {
 		List<T> content = null;
 		try {
 			initConnect();
-			initStmt(query);
-			content = getContentList(c);
-			conn.commit();
-		} catch (Exception e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		} finally {
-			try {
-				exit();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	
-		return content;
-	}
-	
-	protected <T> List<T> getDTOs(String query, Consumer<PreparedStatement> con, Class<?> c) {
-		List<T> content = null;
-		try {
-			initConnect();
-			initPstmt(query, con);
+			initPstmt(query, obj);
 			content = getContentList(c);
 			conn.commit();
 		} catch (Exception e) {
@@ -171,11 +146,6 @@ public abstract class DAO {
 		conn.setAutoCommit(false);
 	}
 	
-	private void initStmt(String query) throws SQLException {
-		stmt = conn.createStatement();
-		rs = stmt.executeQuery(query);
-	}
-	
 	private void initStmtUpdate(String query) throws SQLException {
 		stmt = conn.createStatement();
 		stmt.executeUpdate(query);
@@ -184,15 +154,10 @@ public abstract class DAO {
 	private void initPstmt(String query, Object... obj) throws SQLException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		pstmt = conn.prepareStatement(query);
 		for(int i = 0; i < obj.length; i ++) {
+			System.out.println(obj[i].getClass());
 			psMethods.get(obj[i].getClass()).invoke(pstmt, i+1, obj[i]);
 		}
 		
-		rs = pstmt.executeQuery();
-	}
-	
-	private void initPstmt(String query, Consumer<PreparedStatement> con) throws SQLException {
-		pstmt = conn.prepareStatement(query);
-		con.accept(pstmt);
 		rs = pstmt.executeQuery();
 	}
 	
@@ -201,6 +166,7 @@ public abstract class DAO {
 		con.accept(pstmt);
 		pstmt.executeUpdate();
 	}
+	
 	
 	private List<String> getAllFields(Class<?> c) {
 		List<String> fields = Arrays.stream(c.getDeclaredFields()).map(e -> e.getName()).collect(Collectors.toList());
@@ -321,7 +287,8 @@ public abstract class DAO {
 				.collect(Collectors.toMap(e -> e.getParameterTypes()[1], e -> e));
 		//manually adding setBytes method
 //		methods.put(byte[].class, preparedStatement.getMethod("setBytes", String.class));
-		
+		methods.put(Integer.class, preparedStatement.getMethod("setInt", int.class, int.class));
+		methods.put(Double.class, preparedStatement.getMethod("setDouble", int.class, double.class));
 		return methods;
 	}
 }

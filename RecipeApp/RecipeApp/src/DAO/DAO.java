@@ -3,7 +3,6 @@ package DAO;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -22,36 +21,14 @@ import java.util.stream.Collectors;
 public abstract class DAO {
 	
 	//사용하시면 되는 메소드들 시작:
-	protected boolean isExists(String query) {
-		try {
-			initConnect();
-			initStmt(query);
-			conn.commit();
-			return rs.next();
-		} catch (ClassNotFoundException | SQLException e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		} finally {
-			try {
-				exit();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return false;
-	}
 	
-	protected boolean isExists(String query, Consumer<PreparedStatement> con) {
+	protected boolean isExists(String query, Object... obj) {
 		try {
 			initConnect();
-			initPstmt(query, con);
+			initPstmt(query, obj);
 			conn.commit();
 			return rs.next();
-		} catch (ClassNotFoundException | SQLException e) {
+		} catch (ClassNotFoundException | SQLException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
@@ -206,10 +183,16 @@ public abstract class DAO {
 
 	private void initPstmt(String query, Object... obj) throws SQLException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		pstmt = conn.prepareStatement(query);
-		for(Object o : obj) {
-			psMethods.get(o.getClass()).invoke(pstmt, o);
+		for(int i = 0; i < obj.length; i ++) {
+			psMethods.get(obj[i].getClass()).invoke(pstmt, i+1, obj[i]);
 		}
 		
+		rs = pstmt.executeQuery();
+	}
+	
+	private void initPstmt(String query, Consumer<PreparedStatement> con) throws SQLException {
+		pstmt = conn.prepareStatement(query);
+		con.accept(pstmt);
 		rs = pstmt.executeQuery();
 	}
 	
@@ -337,7 +320,7 @@ public abstract class DAO {
 				.filter(e -> !e.getName().contains("Stream"))
 				.collect(Collectors.toMap(e -> e.getParameterTypes()[1], e -> e));
 		//manually adding setBytes method
-		methods.put(byte[].class, preparedStatement.getMethod("setBytes", String.class));
+//		methods.put(byte[].class, preparedStatement.getMethod("setBytes", String.class));
 		
 		return methods;
 	}

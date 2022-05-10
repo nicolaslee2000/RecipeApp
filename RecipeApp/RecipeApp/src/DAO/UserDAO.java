@@ -39,12 +39,12 @@ public class UserDAO extends DAO implements Authentication{
 	}
 	
 	private void checkId(String user_id) throws InputMismatchException{
-		if(isExists("SELECT * FROM users WHERE user_id = '" + user_id + "'"))
+		if(isExists("SELECT * FROM users WHERE user_id = ?", user_id))
 			throw new InputMismatchException("ID taken!");
 	}
 	
 	private void checkEmail(String email) {
-		if(isExists("SELECT * FROM users WHERE email = '" + email + "'"))
+		if(isExists("SELECT * FROM users WHERE email = ?", email))
 			throw new InputMismatchException("Email taken!");
 	}
 	

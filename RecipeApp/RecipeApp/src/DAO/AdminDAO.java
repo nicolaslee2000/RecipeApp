@@ -29,15 +29,7 @@ public class AdminDAO extends DAO implements Authentication{
 	public void addAdmin(String username, String password) {
 		byte[] salt = generateSalt();
 		byte[] hash = generateHash(password, salt);
-		updateTable("INSERT INTO admins VALUES(?,?,?)", e -> {
-			try {
-				e.setString(1, username);
-				e.setBytes(2, hash);
-				e.setBytes(3, salt);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
+		updateTable("INSERT INTO admins VALUES(?,?,?)", username, hash, salt);
 	}
 	
 }

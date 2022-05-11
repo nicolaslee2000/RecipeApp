@@ -3,18 +3,24 @@ package gui;
 
 import DTO.RecipeDTO;
 import DTO.Recipe_IngredientDTO;
-import DTO.Recipe_bookmarkDTO;
 import DTO.Recipe_reviewDTO;
 import controllers.AdminController;
 import controllers.UserController;
 import java.awt.CardLayout;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import java.sql.SQLException;
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
 
 
 /**
@@ -26,8 +32,9 @@ public class MainFrame extends javax.swing.JFrame {
     /**
      * Creates new form MainFrame
      */
-    private UserController userController;
-    private AdminController adminController;
+    private final UserController userController;
+    private final AdminController adminController;
+    private List<List<Object>> ingredientstemp = new ArrayList<>();
     private String currentUser;
     public MainFrame() {
         userController = new UserController();
@@ -61,7 +68,7 @@ public class MainFrame extends javax.swing.JFrame {
         lbcooktime = new javax.swing.JLabel();
         lbservings = new javax.swing.JLabel();
         jLabel30 = new javax.swing.JLabel();
-        jLabel31 = new javax.swing.JLabel();
+        lbcal = new javax.swing.JLabel();
         jLabel44 = new javax.swing.JLabel();
         lbcategory = new javax.swing.JLabel();
         lbTitle = new javax.swing.JLabel();
@@ -81,7 +88,7 @@ public class MainFrame extends javax.swing.JFrame {
         jButton13 = new javax.swing.JButton();
         lblike = new javax.swing.JLabel();
         tbLike = new javax.swing.JToggleButton();
-        jFileChooser1 = new javax.swing.JFileChooser();
+        fileChooser = new javax.swing.JFileChooser();
         cardP = new javax.swing.JPanel();
         pMain = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
@@ -104,9 +111,9 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel10 = new javax.swing.JPanel();
         jPanel11 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
+        tfadminid = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
-        jPasswordField3 = new javax.swing.JPasswordField();
+        pfadminpwd = new javax.swing.JPasswordField();
         jButton9 = new javax.swing.JButton();
         jLabel14 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
@@ -137,36 +144,36 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel9 = new javax.swing.JPanel();
         jPanel12 = new javax.swing.JPanel();
         jLabel35 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
+        tfrecipename = new javax.swing.JTextField();
         jLabel36 = new javax.swing.JLabel();
-        jComboBox5 = new javax.swing.JComboBox<>();
+        cbDifficulty = new javax.swing.JComboBox<>();
         jLabel37 = new javax.swing.JLabel();
-        jTextField6 = new javax.swing.JTextField();
+        tfcooktime = new javax.swing.JTextField();
         jLabel38 = new javax.swing.JLabel();
         jLabel39 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
+        tfcost = new javax.swing.JTextField();
         jLabel40 = new javax.swing.JLabel();
-        jSpinner1 = new javax.swing.JSpinner();
+        spServings = new javax.swing.JSpinner();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel41 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea4 = new javax.swing.JTextArea();
-        jTextField8 = new javax.swing.JTextField();
+        txtaDirections2 = new javax.swing.JTextArea();
+        tfDirection = new javax.swing.JTextField();
         jToggleButton3 = new javax.swing.JToggleButton();
         jLabel42 = new javax.swing.JLabel();
-        jComboBox6 = new javax.swing.JComboBox<>();
-        jTextField9 = new javax.swing.JTextField();
+        cbIngredients = new javax.swing.JComboBox<>();
+        tfAmount = new javax.swing.JTextField();
         tbUnit = new javax.swing.JComboBox<>();
         jButton15 = new javax.swing.JButton();
         jScrollPane7 = new javax.swing.JScrollPane();
-        jTextArea5 = new javax.swing.JTextArea();
+        txtaIngredient = new javax.swing.JTextArea();
         jButton16 = new javax.swing.JButton();
         jButton17 = new javax.swing.JButton();
         jButton18 = new javax.swing.JButton();
         jLabel46 = new javax.swing.JLabel();
-        jComboBox7 = new javax.swing.JComboBox<>();
+        cbCategory = new javax.swing.JComboBox<>();
         jButton1 = new javax.swing.JButton();
-        jLabel47 = new javax.swing.JLabel();
+        lbimage = new javax.swing.JLabel();
         jComboBox4 = new javax.swing.JComboBox<>();
         jButton11 = new javax.swing.JButton();
         pAdmin = new javax.swing.JPanel();
@@ -230,7 +237,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         jLabel30.setText("Calories:");
 
-        jLabel31.setText("2000cal");
+        lbcal.setText("2000cal");
 
         jLabel44.setText("Categories: ");
 
@@ -284,7 +291,7 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(jLabel44))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel31, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lbcal, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(lbcategory))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -305,7 +312,7 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(jLabel27)
                             .addComponent(lbservings)
                             .addComponent(jLabel30)
-                            .addComponent(jLabel31))
+                            .addComponent(lbcal))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel18)
@@ -487,7 +494,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
                 .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -509,7 +516,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         dRecipe.setLocationRelativeTo(this);
 
-        jFileChooser1.setDialogTitle("");
+        fileChooser.setDialogTitle("");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -666,17 +673,17 @@ public class MainFrame extends javax.swing.JFrame {
 
         jLabel12.setText("Admin id: ");
 
-        jTextField5.addActionListener(new java.awt.event.ActionListener() {
+        tfadminid.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField5ActionPerformed(evt);
+                tfadminidActionPerformed(evt);
             }
         });
 
         jLabel13.setText("password:");
 
-        jPasswordField3.addActionListener(new java.awt.event.ActionListener() {
+        pfadminpwd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jPasswordField3ActionPerformed(evt);
+                pfadminpwdActionPerformed(evt);
             }
         });
 
@@ -707,8 +714,8 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(jLabel12))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPasswordField3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(tfadminid, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pfadminpwd, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(35, 35, 35)
                         .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(544, Short.MAX_VALUE))
@@ -722,11 +729,11 @@ public class MainFrame extends javax.swing.JFrame {
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tfadminid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel12))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jPasswordField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pfadminpwd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel13)))
                     .addGroup(jPanel11Layout.createSequentialGroup()
                         .addGap(7, 7, 7)
@@ -738,7 +745,7 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 984, Short.MAX_VALUE)
+            .addGap(0, 986, Short.MAX_VALUE)
             .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel10Layout.createSequentialGroup()
                     .addGap(0, 0, Short.MAX_VALUE)
@@ -777,7 +784,7 @@ public class MainFrame extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -943,7 +950,7 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton10)))))
                 .addContainerGap())
@@ -962,7 +969,7 @@ public class MainFrame extends javax.swing.JFrame {
                         .addGroup(pRecipeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel9)
                             .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
                 .addGroup(pRecipeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pRecipeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pRecipeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -989,6 +996,11 @@ public class MainFrame extends javax.swing.JFrame {
         });
 
         jButton6.setText("Delete");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
 
         jButton7.setText("Edit");
 
@@ -1078,15 +1090,21 @@ public class MainFrame extends javax.swing.JFrame {
 
         jLabel35.setText("Recipe name: ");
 
+        tfrecipename.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfrecipenameActionPerformed(evt);
+            }
+        });
+
         jLabel36.setText("Difficulty: ");
 
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbDifficulty.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "very easy", "easy", "medium", "hard", "very hard" }));
 
         jLabel37.setText("Cook time: ");
 
-        jTextField6.addActionListener(new java.awt.event.ActionListener() {
+        tfcooktime.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField6ActionPerformed(evt);
+                tfcooktimeActionPerformed(evt);
             }
         });
 
@@ -1096,41 +1114,45 @@ public class MainFrame extends javax.swing.JFrame {
 
         jLabel40.setText("Servings: ");
 
+        spServings.setModel(new javax.swing.SpinnerNumberModel(1, 1, 20, 1));
+
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
         jLabel41.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel41.setText("Directions: ");
 
-        jTextArea4.setEditable(false);
-        jTextArea4.setBackground(new java.awt.Color(255, 255, 255));
-        jTextArea4.setColumns(20);
-        jTextArea4.setLineWrap(true);
-        jTextArea4.setRows(5);
-        jTextArea4.setText("Step 1: \n\n");
-        jTextArea4.setWrapStyleWord(true);
-        jScrollPane2.setViewportView(jTextArea4);
+        txtaDirections2.setEditable(false);
+        txtaDirections2.setBackground(new java.awt.Color(255, 255, 255));
+        txtaDirections2.setColumns(20);
+        txtaDirections2.setLineWrap(true);
+        txtaDirections2.setRows(5);
+        txtaDirections2.setText("Step 1: \n\n");
+        txtaDirections2.setWrapStyleWord(true);
+        jScrollPane2.setViewportView(txtaDirections2);
 
-        jTextField8.addActionListener(new java.awt.event.ActionListener() {
+        tfDirection.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField8ActionPerformed(evt);
+                tfDirectionActionPerformed(evt);
             }
         });
 
         jToggleButton3.setText("Add step");
+        jToggleButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton3ActionPerformed(evt);
+            }
+        });
 
         jLabel42.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel42.setText("Ingredients: ");
 
-        jComboBox6.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jTextField9.setText("1");
-        jTextField9.addActionListener(new java.awt.event.ActionListener() {
+        tfAmount.setText("1");
+        tfAmount.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField9ActionPerformed(evt);
+                tfAmountActionPerformed(evt);
             }
         });
 
-        tbUnit.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "whole", "teaspoon", "Item 3", "Item 4" }));
         tbUnit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tbUnitActionPerformed(evt);
@@ -1138,31 +1160,54 @@ public class MainFrame extends javax.swing.JFrame {
         });
 
         jButton15.setText("Add ingredient");
+        jButton15.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton15ActionPerformed(evt);
+            }
+        });
 
-        jTextArea5.setEditable(false);
-        jTextArea5.setBackground(new java.awt.Color(255, 255, 255));
-        jTextArea5.setColumns(20);
-        jTextArea5.setLineWrap(true);
-        jTextArea5.setRows(5);
-        jTextArea5.setText("Ingredients:");
-        jTextArea5.setWrapStyleWord(true);
-        jScrollPane7.setViewportView(jTextArea5);
+        txtaIngredient.setEditable(false);
+        txtaIngredient.setBackground(new java.awt.Color(255, 255, 255));
+        txtaIngredient.setColumns(20);
+        txtaIngredient.setLineWrap(true);
+        txtaIngredient.setRows(5);
+        txtaIngredient.setText("Ingredients:");
+        txtaIngredient.setWrapStyleWord(true);
+        jScrollPane7.setViewportView(txtaIngredient);
 
         jButton16.setText("Remove step");
+        jButton16.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton16ActionPerformed(evt);
+            }
+        });
 
         jButton17.setText("Remove ingredient");
+        jButton17.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton17ActionPerformed(evt);
+            }
+        });
 
         jButton18.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jButton18.setText("Save");
+        jButton18.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton18ActionPerformed(evt);
+            }
+        });
 
         jLabel46.setText("Categories: ");
 
-        jComboBox7.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
         jButton1.setText("Upload image:");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
-        jLabel47.setBackground(new java.awt.Color(255, 153, 102));
-        jLabel47.setForeground(new java.awt.Color(255, 153, 51));
+        lbimage.setBackground(new java.awt.Color(255, 153, 102));
+        lbimage.setForeground(new java.awt.Color(255, 153, 51));
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
         jPanel12.setLayout(jPanel12Layout);
@@ -1181,20 +1226,20 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(jLabel46))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tfrecipename, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cbDifficulty, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(jTextField7, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(tfcost, javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(jPanel12Layout.createSequentialGroup()
-                                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(tfcooktime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(jLabel38)))
-                            .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(spServings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel12Layout.createSequentialGroup()
-                        .addComponent(jComboBox6, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(cbIngredients, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(tfAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(tbUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(6, 6, 6))
@@ -1213,7 +1258,7 @@ public class MainFrame extends javax.swing.JFrame {
                             .addGroup(jPanel12Layout.createSequentialGroup()
                                 .addComponent(jLabel41)
                                 .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(jTextField8))
+                            .addComponent(tfDirection))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1222,7 +1267,7 @@ public class MainFrame extends javax.swing.JFrame {
                     .addGroup(jPanel12Layout.createSequentialGroup()
                         .addComponent(jButton1)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel47, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lbimage, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton18, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
@@ -1238,35 +1283,35 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(jSeparator1)
                     .addGroup(jPanel12Layout.createSequentialGroup()
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tfrecipename, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel35))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel36)
-                            .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cbDifficulty, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel37)
-                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tfcooktime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel38))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel39)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(tfcost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel40)
-                            .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(spServings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel46)
-                            .addComponent(jComboBox7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(15, 15, 15)
                         .addComponent(jLabel42)
                         .addGap(9, 9, 9)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cbIngredients, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tfAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(tbUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -1283,7 +1328,7 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addComponent(jToggleButton3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jButton16))
-                            .addComponent(jTextField8))
+                            .addComponent(tfDirection))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(34, 34, 34)
@@ -1292,7 +1337,7 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addComponent(jButton1)
                                 .addGap(50, 50, 50)
                                 .addComponent(jButton18, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel47, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lbimage, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(40, 40, 40))))
         );
 
@@ -1334,7 +1379,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton11)
                 .addGap(17, 17, 17))
@@ -1352,7 +1397,7 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButton11))
                         .addGap(0, 0, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(34, 34, 34)
                 .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 616, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -1362,6 +1407,11 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel43.setText("admin menu");
 
         jButton19.setText("Logout");
+        jButton19.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton19ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
@@ -1437,7 +1487,7 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
-                .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 575, Short.MAX_VALUE)
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(jPanel14Layout.createSequentialGroup()
                 .addContainerGap()
@@ -1487,7 +1537,7 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel15.setLayout(jPanel15Layout);
         jPanel15Layout.setHorizontalGroup(
             jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane9, javax.swing.GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
+            .addComponent(jScrollPane9, javax.swing.GroupLayout.DEFAULT_SIZE, 1001, Short.MAX_VALUE)
             .addGroup(jPanel15Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jButton22)
@@ -1504,7 +1554,7 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(jButton22))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane9, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(47, Short.MAX_VALUE))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
         jTabbedPane3.addTab("List recipes", jPanel15);
@@ -1520,7 +1570,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 934, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton23))
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addContainerGap(61, Short.MAX_VALUE))
         );
         jPanel18Layout.setVerticalGroup(
             jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1529,7 +1579,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton23)
-                .addContainerGap(525, Short.MAX_VALUE))
+                .addContainerGap(531, Short.MAX_VALUE))
         );
 
         jTabbedPane3.addTab("Run sql command", jPanel18);
@@ -1549,7 +1599,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(jTabbedPane3))
         );
 
-        cardP.add(pAdmin, "card5");
+        cardP.add(pAdmin, "cardAdmin");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -1603,24 +1653,32 @@ public class MainFrame extends javax.swing.JFrame {
        CardLayout cl = (CardLayout) cardP.getLayout();
         cl.show(cardP, "cardMyRecipe");
         updateRecipes(tableMyrecipe, userController.getRecipesFilter("author", currentUser));
+        updateMyrecipe();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         updateRecipes(tableRecipe, userController.getRecipes());
+        
+        
         CardLayout cl = (CardLayout) cardP.getLayout();
         cl.show(cardP, "cardRecipeList");
+        
+        
     }//GEN-LAST:event_jButton5ActionPerformed
 
-    private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
+    private void tfadminidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfadminidActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField5ActionPerformed
+    }//GEN-LAST:event_tfadminidActionPerformed
 
-    private void jPasswordField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordField3ActionPerformed
+    private void pfadminpwdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pfadminpwdActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPasswordField3ActionPerformed
+    }//GEN-LAST:event_pfadminpwdActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        // TODO add your handling code here:
+        if(adminController.authenticate(tfadminid.getText(), String.valueOf(pfadminpwd.getPassword()))) {
+            CardLayout cl = (CardLayout) cardP.getLayout();
+            cl.show(cardP, "cardAdmin");
+        }
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void tfSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfSearchActionPerformed
@@ -1640,6 +1698,7 @@ public class MainFrame extends javax.swing.JFrame {
         String id = (String) tableRecipe.getValueAt(row, 1);
         int recipe_id = userController.getRecipeId(name, id);
         selectRecipe(recipe_id);
+
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void tbLikeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tbLikeActionPerformed
@@ -1678,24 +1737,30 @@ public class MainFrame extends javax.swing.JFrame {
         joptionInfo("reported!");
     }//GEN-LAST:event_jButton12ActionPerformed
 
-    private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
+    private void tfcooktimeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfcooktimeActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField6ActionPerformed
+    }//GEN-LAST:event_tfcooktimeActionPerformed
 
-    private void jTextField8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField8ActionPerformed
+    private void tfDirectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfDirectionActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField8ActionPerformed
+    }//GEN-LAST:event_tfDirectionActionPerformed
 
-    private void jTextField9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField9ActionPerformed
+    private void tfAmountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfAmountActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField9ActionPerformed
+    }//GEN-LAST:event_tfAmountActionPerformed
 
     private void tbUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tbUnitActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tbUnitActionPerformed
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
-        // TODO add your handling code here:
+        int row = tableMyrecipe.getSelectedRow();
+        if(row == -1)
+            return;
+        String name = (String) tableMyrecipe.getValueAt(row, 0);
+        String id = (String) tableMyrecipe.getValueAt(row, 1);
+        int recipe_id = userController.getRecipeId(name, id);
+        selectRecipe(recipe_id);
     }//GEN-LAST:event_jButton14ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
@@ -1747,6 +1812,121 @@ public class MainFrame extends javax.swing.JFrame {
         CardLayout cl = (CardLayout) cardP.getLayout();
         cl.show(cardP, "cardLogin");
     }//GEN-LAST:event_jButton11ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        int row = tableMyrecipe.getSelectedRow();
+        if(row == -1)
+            return;
+        String name = (String) tableMyrecipe.getValueAt(row, 0);
+        String id = (String) tableMyrecipe.getValueAt(row, 1);
+        int recipe_id = userController.getRecipeId(name, id);
+        userController.deleteRecipe(recipe_id);
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+            try {
+                File file = fileChooser.getSelectedFile();
+                Image image = ImageIO.read(file).getScaledInstance(80, 80, Image.SCALE_DEFAULT);
+                lbimage.setIcon(new ImageIcon(image));
+            } catch (IOException ex) {
+            }
+            
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton18ActionPerformed
+        String name = tfrecipename.getText();
+        int difficulty = cbDifficulty.getSelectedIndex() + 1;
+        String cooktime = tfcooktime.getText();
+        String cost = tfcost.getText();
+        int servings = (int)spServings.getValue();
+        String directions = txtaDirections2.getText();
+        if(name.isBlank() || cooktime.isBlank() || cost.isBlank() || ingredientstemp.isEmpty()) {
+            joptionWarning("blank field!");
+            return;
+        }
+        userController.setRecipe(name, currentUser, directions, new java.sql.Date(System.currentTimeMillis()), difficulty, Integer.parseInt(cost), servings, cooktime);
+        int recipe_id = userController.getRecipeId(name, currentUser);
+        userController.setRecipeCategory(recipe_id, (String)cbCategory.getSelectedItem());
+        ingredientstemp.stream().forEach(e -> userController.setRecipeIngredient(recipe_id, (String)e.get(0), (double)e.get(2), (String)e.get(1)));
+        
+        ingredientstemp.clear();
+        tfrecipename.setText("");
+        tfcooktime.setText("");
+        tfcost.setText("");
+        spServings.setValue(1);
+        txtaDirections.setText("");
+        txtaDirections2.setText("Step 1:");
+        txtaIngredient.setText("Ingredients: \n");
+        
+        joptionInfo("Created!");
+    }//GEN-LAST:event_jButton18ActionPerformed
+
+    private void tfrecipenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfrecipenameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfrecipenameActionPerformed
+
+    private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
+        String name = (String)cbIngredients.getSelectedItem();
+        String unit = (String)tbUnit.getSelectedItem();
+        double amount = Double.parseDouble(tfAmount.getText());
+        if(name == null) {
+            joptionWarning("select ingredient!");
+            return;
+        }
+        if(unit == null) {
+            joptionWarning("select unit!");
+            return;
+        }
+        if(amount < 0) {
+            joptionWarning("select amount!");
+            return;
+        }
+        List<Object> list = new ArrayList<>();
+        list.add(name);
+        list.add(unit);
+        list.add(amount);
+        ingredientstemp.add(list);
+        updateTxtaIngredients();
+        
+    }//GEN-LAST:event_jButton15ActionPerformed
+    private void updateTxtaIngredients() {
+        txtaIngredient.setText("Ingredients:");
+        ingredientstemp.stream().forEach(e -> txtaIngredient.append("\n\n" + e.get(2) + " " + e.get(1) + " of " + e.get(0)));
+    }
+            
+    private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
+        if(ingredientstemp.size() < 1) {
+            return;
+        }
+        ingredientstemp.remove(ingredientstemp.size()-1);
+        updateTxtaIngredients();
+    }//GEN-LAST:event_jButton17ActionPerformed
+
+    private void jToggleButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton3ActionPerformed
+        String direction = tfDirection.getText();
+        if(direction.isBlank()) {
+            joptionWarning("blank text!");
+            return;
+        }
+        Pattern pattern = Pattern.compile(".*Step.*");
+        Matcher matcher = pattern.matcher(txtaDirections2.getText());
+        int count = 1;
+        while (matcher.find()) {
+            count++;
+        }
+        txtaDirections2.append("\n\nStep "+count+": \n"+direction);
+    }//GEN-LAST:event_jToggleButton3ActionPerformed
+
+    private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
+        //TODO
+    }//GEN-LAST:event_jButton16ActionPerformed
+
+    private void jButton19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton19ActionPerformed
+        CardLayout cl = (CardLayout) cardP.getLayout();
+        cl.show(cardP, "cardLogin");
+    }//GEN-LAST:event_jButton19ActionPerformed
     
     private void updateRecipes(JTable table, List<RecipeDTO> recipes) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -1760,7 +1940,7 @@ public class MainFrame extends javax.swing.JFrame {
             String cost = String.valueOf(recipe.getCost());
             String cooktime = recipe.getCook_time();
             String likecnt = String.valueOf(userController.getLikeCnt(id));
-            String calories = String.valueOf(recipe.getRecipe_total_calories());
+            String calories = String.valueOf(userController.getTotalCal(id)/recipe.getServings());
             
             model.addRow(new Object[]{name, author, date, difficulty, cost, cooktime, likecnt, calories});
         }
@@ -1779,8 +1959,7 @@ public class MainFrame extends javax.swing.JFrame {
             String cost = String.valueOf(recipe.getCost());
             String cooktime = recipe.getCook_time();
             String likecnt = String.valueOf(userController.getLikeCnt(id));
-            String calories = String.valueOf(recipe.getRecipe_total_calories());
-            
+            String calories = String.valueOf(userController.getTotalCal(id)/recipe.getServings());
             model.addRow(new Object[]{name, author, date, difficulty, cost, cooktime, likecnt, calories});
             
         }
@@ -1789,6 +1968,12 @@ public class MainFrame extends javax.swing.JFrame {
     private void emptyTable(JTable table) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
+    }
+    
+    private void updateMyrecipe() {
+        userController.getAllIngredients().stream().map(e -> e.getIngredient_name()).forEach(cbIngredients::addItem);
+        userController.getAllCategories().stream().map(e -> e.getCategory_name()).forEach(cbCategory::addItem);
+        userController.getAllUnits().stream().map(e -> e.getUnit_name()).forEach(tbUnit::addItem);
     }
     
     private void selectRecipe(int recipe_id) {
@@ -1826,7 +2011,7 @@ public class MainFrame extends javax.swing.JFrame {
         updatelbLike(userController.getLikeCnt(recipe_id), recipe_id);
         updateBookmark(recipe_id);
         updateReview(recipe_id);
-        
+        lbcal.setText(String.valueOf(userController.getTotalCal(recipe_id)/recipe.getServings()));
         
         dRecipe.setVisible(true);
     }
@@ -1887,9 +2072,13 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton bLogin;
     private javax.swing.JButton bRegister;
     private javax.swing.JPanel cardP;
+    private javax.swing.JComboBox<String> cbCategory;
+    private javax.swing.JComboBox<String> cbDifficulty;
     private javax.swing.JComboBox<String> cbFiltertype;
+    private javax.swing.JComboBox<String> cbIngredients;
     private javax.swing.JComboBox<String> cbPreflang;
     private javax.swing.JDialog dRecipe;
+    private javax.swing.JFileChooser fileChooser;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
@@ -1914,10 +2103,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton9;
     private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;
-    private javax.swing.JComboBox<String> jComboBox5;
-    private javax.swing.JComboBox<String> jComboBox6;
-    private javax.swing.JComboBox<String> jComboBox7;
-    private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1934,7 +2119,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel30;
-    private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel34;
     private javax.swing.JLabel jLabel35;
     private javax.swing.JLabel jLabel36;
@@ -1947,7 +2131,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel43;
     private javax.swing.JLabel jLabel44;
     private javax.swing.JLabel jLabel46;
-    private javax.swing.JLabel jLabel47;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -1970,7 +2153,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
-    private javax.swing.JPasswordField jPasswordField3;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -1979,30 +2161,23 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSpinner jSpinner1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTabbedPane jTabbedPane3;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable4;
-    private javax.swing.JTextArea jTextArea4;
-    private javax.swing.JTextArea jTextArea5;
     private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
     private javax.swing.JToggleButton jToggleButton3;
     private javax.swing.JLabel lbIcon;
     private javax.swing.JLabel lbTitle;
     private javax.swing.JLabel lbauthor;
     private javax.swing.JLabel lbbookmark;
+    private javax.swing.JLabel lbcal;
     private javax.swing.JLabel lbcategory;
     private javax.swing.JLabel lbcooktime;
     private javax.swing.JLabel lbcost;
     private javax.swing.JLabel lbdifficulty;
+    private javax.swing.JLabel lbimage;
     private javax.swing.JLabel lblike;
     private javax.swing.JLabel lbpDate;
     private javax.swing.JLabel lbservings;
@@ -2010,20 +2185,30 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel pMain;
     private javax.swing.JPanel pMyRecipe;
     private javax.swing.JPanel pRecipe;
+    private javax.swing.JPasswordField pfadminpwd;
     private javax.swing.JScrollPane scroolablep;
     private javax.swing.JScrollPane scroolablep2;
+    private javax.swing.JSpinner spServings;
     private javax.swing.JTable tableMyrecipe;
     private javax.swing.JTable tableRecipe;
     private javax.swing.JToggleButton tbBookmark;
     private javax.swing.JToggleButton tbLike;
     private javax.swing.JComboBox<String> tbUnit;
+    private javax.swing.JTextField tfAmount;
+    private javax.swing.JTextField tfDirection;
     private javax.swing.JTextField tfId;
     private javax.swing.JTextField tfSearch;
+    private javax.swing.JTextField tfadminid;
+    private javax.swing.JTextField tfcooktime;
+    private javax.swing.JTextField tfcost;
     private javax.swing.JPasswordField tfpwd;
+    private javax.swing.JTextField tfrecipename;
     private javax.swing.JTextField tfregisteremail;
     private javax.swing.JTextField tfregisterid;
     private javax.swing.JPasswordField tfregisterpwd;
     private javax.swing.JTextArea txtaDirections;
+    private javax.swing.JTextArea txtaDirections2;
+    private javax.swing.JTextArea txtaIngredient;
     private javax.swing.JTextArea txtaIngredients;
     private javax.swing.JTextArea txtareview;
     // End of variables declaration//GEN-END:variables

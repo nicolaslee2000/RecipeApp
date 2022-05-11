@@ -18,7 +18,8 @@ public class UserDAO extends DAO implements Authentication {
 	public UserDAO(String username, String password) {
 		super(username, password);
 	}
-
+	
+	//strong entities
 	public void createUser(String user_id, String password, String email, String language)
 			throws InputMismatchException {
 		byte[] salt = generateSalt();
@@ -26,17 +27,7 @@ public class UserDAO extends DAO implements Authentication {
 		checkId(user_id);
 		checkEmail(email);
 
-		updateTable("INSERT INTO users(user_id, user_pwd, email, salt, language) VALUES(?,?,?,?,?)", e -> {
-			try {
-				e.setString(1, user_id);
-				e.setBytes(2, hash);
-				e.setString(3, email);
-				e.setBytes(4, salt);
-				e.setString(5, language);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
+		updateTable("INSERT INTO users(user_id, user_pwd, email, salt, language) VALUES(?,?,?,?,?)", user_id, hash, email, salt, language);
 	}
 
 	private void checkId(String user_id) throws InputMismatchException {
@@ -49,7 +40,6 @@ public class UserDAO extends DAO implements Authentication {
 			throw new InputMismatchException("Email taken!");
 	}
 
-	// TODO
 	public boolean checkUser(String user_id, String password) {
 		List<UserDTO> users = getDTOs(UserDTO.class, "SELECT * FROM users");
 		for (UserDTO user : users) {
@@ -64,108 +54,64 @@ public class UserDAO extends DAO implements Authentication {
 		return false;
 	}
 
-	// weak entities
-	public void setRecipe_review(int recipe_id, String user_id, String review) {
-		updateTable("INSERT INTO recipe_reviews VALUES(?,?,?)", e -> {
-			try {
-				e.setInt(1, recipe_id);
-				e.setString(2, user_id);
-				e.setString(3, review);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
+	public void deleteUser(String user_id) {
+		updateTable("SELECT * FROM users WHERE user_id = ?", user_id);
 	}
-
-	public void updateRecipe_review(int recipe_id, String user_id, String review) {
-		updateTable("UPDATE recipe_reviews SET review = ? WHERE recipe_id = ? AND user_id = ?", e -> {
-			try {
-				e.setString(1, review);
-				e.setInt(2, recipe_id);
-				e.setString(3, user_id);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
+	
+	//weak entities
+	// weak entities setters
+	public void setLike(int recipe_id, String user_id) {
+		updateTable("INSERT INTO recipe_likes VALUES(?,?)", recipe_id, user_id);
 	}
-
-	public List<Recipe_likeDTO> getLikes(int recipe_id, String user_id) {
+	public void setReview(int recipe_id, String user_id, String review) {
+		updateTable("INSERT INTO recipe_reviews VALUES(?,?,?)", recipe_id, user_id, review);
+	}
+	public void setReport(int recipe_id, String user_id, String reasonForReport) {
+		updateTable("INSERT INTO recipe_reports VALUES(?,?,?)", recipe_id, user_id, reasonForReport);
+	}
+	public void setBookmark(int recipe_id, String user_id) {
+		updateTable("INSERT INTO recipe_bookmarks VALUES(?,?)", recipe_id, user_id);
+	}
+	
+	//weak entities getters
+	public Recipe_likeDTO getLike(int recipe_id, String user_id) {
 		return getDTOs(Recipe_likeDTO.class, "SELECT * FROM recipe_likes WHERE recipe_id = ? AND user_id = ?",
-				recipe_id, user_id);
+				recipe_id, user_id).stream().findFirst().orElse(null);
 	}
-
-	public List<Recipe_bookmarkDTO> getBookmarks(int recipe_id, String user_id) {
-		return getDTOs(Recipe_bookmarkDTO.class, "SELECT * FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?",
-				recipe_id, user_id);
-	}
-
-	public List<Recipe_reviewDTO> getReviews(int recipe_id, String user_id) {
+	public Recipe_reviewDTO getReview(int recipe_id, String user_id) {
 		return getDTOs(Recipe_reviewDTO.class, "SELECT * FROM recipe_reviews WHERE recipe_id = ? AND user_id = ?",
-				recipe_id, user_id);
+				recipe_id, user_id).stream().findFirst().orElse(null);
 	}
-
-	public List<Recipe_reviewDTO> getReviews(int recipe_id) {
-		return getDTOs(Recipe_reviewDTO.class, "SELECT * FROM recipe_reviews WHERE recipe_id = ?", recipe_id);
-	}
-
-	public List<Recipe_reportDTO> getReports(int recipe_id, String user_id) {
+	public Recipe_reportDTO getReport(int recipe_id, String user_id) {
 		return getDTOs(Recipe_reportDTO.class,
-				"SELECT * FROM recipe_reports WHERE recipe_id = ? AND reporting_user_id = ?", recipe_id, user_id);
+				"SELECT * FROM recipe_reports WHERE recipe_id = ? AND reporting_user_id = ?", recipe_id, user_id)
+				.stream().findFirst().orElse(null);
+	}
+	public Recipe_bookmarkDTO getBookmark(int recipe_id, String user_id) {
+		return getDTOs(Recipe_bookmarkDTO.class, "SELECT * FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?",
+				recipe_id, user_id).stream().findFirst().orElse(null);
+	}
+	
+	//weak entities update
+	public void updateReview(int recipe_id, String user_id, String review) {
+		updateTable("UPDATE recipe_reviews SET review = ? WHERE recipe_id = ? AND user_id = ?", review, recipe_id, user_id);
+	}
+	public void updateReport(int recipe_id, String user_id, String reason) {
+		updateTable("UPDATE recipe_reports SET reason_for_report = ? WHERE recipe_id = ? AND user_id = ?", reason, recipe_id, user_id);
+	}
+	
+	//weak entities delete
+	public void deleteLike(int recipe_id, String user_id) {
+		updateTable("DELETE FROM recipe_likes WHERE recipe_id = ? AND user_id = ?", recipe_id, user_id);
+	}
+	public void deleteReview(int recipe_id, String user_id) {
+		updateTable("DELETE FROM recipe_reviews WHERE recipe_id = ? AND user_id = ?", recipe_id, user_id);
+	}
+	public void deleteBookmark(int recipe_id, String user_id) {
+		updateTable("DELETE FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?", recipe_id, user_id);
+	}
+	public void deleteReport(int recipe_id, String user_id) {
+		updateTable("DELETE FROM recipe_reports WHERE recipe_id = ? AND user_id = ?", recipe_id, user_id);
 	}
 
-	public void setRecipe_like(int recipe_id, String user_id) {
-		updateTable("INSERT INTO recipe_likes VALUES(?,?)", e -> {
-			try {
-				e.setInt(1, recipe_id);
-				e.setString(2, user_id);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
-	}
-
-	public void deleteRecipe_like(int recipe_id, String user_id) {
-		updateTable("DELETE FROM recipe_likes WHERE recipe_id = ? AND user_id = ?", e -> {
-			try {
-				e.setInt(1, recipe_id);
-				e.setString(2, user_id);
-			} catch (SQLException ex) {
-				Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
-			}
-		});
-	}
-
-	public void setRecipe_report(int recipe_id, String user_id, String reasonForReport) {
-		updateTable("INSERT INTO recipe_reports VALUES(?,?,?)", e -> {
-			try {
-				e.setInt(1, recipe_id);
-				e.setString(2, user_id);
-				e.setString(3, reasonForReport);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
-	}
-
-	public void setRecipe_bookmark(int recipe_id, String user_id) {
-		updateTable("INSERT INTO recipe_bookmarks VALUES(?,?)", e -> {
-			try {
-				e.setInt(1, recipe_id);
-				e.setString(2, user_id);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
-	}
-
-	public void deleteRecipe_bookmark(int recipe_id, String user_id) {
-		updateTable("DELETE FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?", e -> {
-			try {
-				e.setInt(1, recipe_id);
-				e.setString(2, user_id);
-			} catch (SQLException ex) {
-				Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
-			}
-		});
-	}
 }

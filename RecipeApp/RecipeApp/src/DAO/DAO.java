@@ -45,7 +45,7 @@ public abstract class DAO {
 		return false;
 	}
 	
-	protected <T> List<T> getDTOs(Class<?> c, String query, Object... obj) {
+	protected <T> List<T> getDTOs(Class<T> c, String query, Object... obj) {
 		List<T> content = null;
 		try {
 			initConnect();
@@ -69,31 +69,10 @@ public abstract class DAO {
 		return content;
 	}
 	
-	protected void updateTable(String query) {
+	protected void updateTable(String query, Object... obj) {
 		try {
 			initConnect();
-			initStmtUpdate(query);
-			conn.commit();
-		} catch (Exception e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		} finally {
-			try {
-				exit();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	protected void updateTable(String query, Consumer<PreparedStatement> con) {
-		try {
-			initConnect();
-			initPstmtUpdate(query, con);
+			initPstmtUpdate(query, obj);
 			conn.commit();
 		} catch (Exception e) {
 			try {
@@ -145,25 +124,21 @@ public abstract class DAO {
 		conn = DriverManager.getConnection(url, username, password);
 		conn.setAutoCommit(false);
 	}
-	
-	private void initStmtUpdate(String query) throws SQLException {
-		stmt = conn.createStatement();
-		stmt.executeUpdate(query);
-	}
 
 	private void initPstmt(String query, Object... obj) throws SQLException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		pstmt = conn.prepareStatement(query);
 		for(int i = 0; i < obj.length; i ++) {
-			System.out.println(obj[i].getClass());
 			psMethods.get(obj[i].getClass()).invoke(pstmt, i+1, obj[i]);
 		}
 		
 		rs = pstmt.executeQuery();
 	}
 	
-	private void initPstmtUpdate(String query, Consumer<PreparedStatement> con) throws SQLException {
+	private void initPstmtUpdate(String query, Object... obj) throws SQLException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		pstmt = conn.prepareStatement(query);
-		con.accept(pstmt);
+		for(int i = 0; i < obj.length; i ++) {
+			psMethods.get(obj[i].getClass()).invoke(pstmt, i+1, obj[i]);
+		}
 		pstmt.executeUpdate();
 	}
 	
@@ -228,8 +203,6 @@ public abstract class DAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	//using recursion
-	//getting retaining fields of class and table columns including class within class using recursion
 	private <T> List<T> getContentList(Class<?> c) throws Exception {
 		List<T> content = new ArrayList<>();
 		while(rs.next()) {

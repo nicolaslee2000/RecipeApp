@@ -10,7 +10,6 @@ public class Recipe_IngredientDTO {
 	private double amount;
 	private String unit_name;
 	private double ingredient_total_calories;
-	private RecipeDTO recipeDTO;
 	private UnitDTO unitDTO;
 	private IngredientDTO ingredientDTO;
 	

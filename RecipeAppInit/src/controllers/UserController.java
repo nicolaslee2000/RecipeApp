@@ -16,6 +16,8 @@ import DAO.RecipeDAO;
 import DAO.UserDAO;
 import DTO.RecipeDTO;
 import DTO.Recipe_IngredientDTO;
+import DTO.Recipe_reportDTO;
+import DTO.Recipe_reviewDTO;
 import java.sql.SQLException;
 
 public class UserController extends Controller {
@@ -36,7 +38,7 @@ public class UserController extends Controller {
 	}
 
 	public List<RecipeDTO> getRecipes() {
-		return recipedao.getRecipes();
+		return recipedao.getAllRecipes();
 	}
 
 	public RecipeDTO getRecipe(int recipe_id) {
@@ -82,12 +84,30 @@ public class UserController extends Controller {
 
 		// TODO image resizing should be on the side of gui
 	}
-	
-	public void setRecipeLike(int recipe_id, String user_id) {
-		userdao.setRecipe_like(recipe_id, user_id);
-	}
-	
 
+	public void setRecipeLike(int recipe_id, String user_id) {
+		userdao.setLike(recipe_id, user_id);
+	}
+
+	public void deleteRecipeLike(int recipe_id, String user_id) {
+		userdao.deleteLike(recipe_id, user_id);
+	}
+
+	public void setRecipeBookmark(int recipe_id, String user_id) {
+		userdao.setBookmark(recipe_id, user_id);
+	}
+
+	public void deleteRecipeBookmark(int recipe_id, String user_id) {
+		userdao.deleteBookmark(recipe_id, user_id);
+	}
+
+	public boolean isLiked(int recipe_id, String user_id) {
+		return userdao.getLike(recipe_id, user_id) != null;
+	}
+
+	public boolean isBookmarked(int recipe_id, String user_id) {
+		return userdao.getBookmark(recipe_id, user_id) != null;
+	}
 
 	public ImageIcon getImageIcon(byte[] arr) {
 		return new ImageIcon(arr);
@@ -97,4 +117,27 @@ public class UserController extends Controller {
 		return recipedao.getIngredients(recipe_id);
 	}
 
+	public Recipe_reviewDTO getReview(int recipe_id, String user_id) {
+		return userdao.getReview(recipe_id, user_id);
+	}
+
+	public List<Recipe_reviewDTO> getReviews(int recipe_id) {
+		return recipedao.getRecipeReviews(recipe_id);
+	}
+
+	public void setRecipe_review(int recipe_id, String user_id, String review) {
+		userdao.setReview(recipe_id, user_id, review);
+	}
+
+	public void updateRecipe_review(int recipe_id, String user_id, String review) {
+		userdao.updateReview(recipe_id, user_id, review);
+	}
+
+	public void setRecipe_report(int recipe_id, String user_id, String report) {
+		userdao.setReport(recipe_id, user_id, report);
+	}
+
+	public boolean isReported(int recipe_id, String user_id) {
+		return userdao.getReport(recipe_id, user_id) != null;
+	}
 }

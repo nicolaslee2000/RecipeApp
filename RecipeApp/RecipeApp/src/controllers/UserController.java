@@ -14,10 +14,15 @@ import javax.swing.ImageIcon;
 
 import DAO.RecipeDAO;
 import DAO.UserDAO;
+import DTO.CategoryDTO;
+import DTO.IngredientDTO;
 import DTO.RecipeDTO;
 import DTO.Recipe_IngredientDTO;
 import DTO.Recipe_reportDTO;
 import DTO.Recipe_reviewDTO;
+import DTO.UnitDTO;
+
+import java.sql.Date;
 import java.sql.SQLException;
 
 public class UserController extends Controller {
@@ -25,8 +30,8 @@ public class UserController extends Controller {
 	private RecipeDAO recipedao;
 
 	public UserController() {
-		userdao = new UserDAO("recipe_admin_test", "a1234");
-		recipedao = new RecipeDAO("recipe_admin_test", "a1234");
+		userdao = new UserDAO("recipe_admin", "a1234");
+		recipedao = new RecipeDAO("recipe_admin", "a1234");
 	}
 
 	public boolean authenticate(String id, String password) {
@@ -38,7 +43,7 @@ public class UserController extends Controller {
 	}
 
 	public List<RecipeDTO> getRecipes() {
-		return recipedao.getRecipes();
+		return recipedao.getAllRecipes();
 	}
 
 	public RecipeDTO getRecipe(int recipe_id) {
@@ -48,7 +53,7 @@ public class UserController extends Controller {
 	public List<RecipeDTO> getRecipesFilter(String filterType, String filter) {
 		switch (filterType) {
 		case "recipe name":
-			return recipedao.getRecipesFilterName(filter);
+			return recipedao.getRecipesFilterName("%"+filter+"%");
 		case "author":
 			return recipedao.getRecipesFilterAuthor(filter);
 		case "ingredient":
@@ -69,14 +74,13 @@ public class UserController extends Controller {
 	public void setRecipeImage(File file, int recipe_id) {
 		final int WIDTH = 80;
 		final int HEIGHT = 80;
-		String ext = file.getName().substring(file.getName().lastIndexOf(".") + 1);
 		Image image;
 		try {
 			image = ImageIO.read(file).getScaledInstance(WIDTH, HEIGHT, Image.SCALE_DEFAULT);
 			BufferedImage outputImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 			outputImage.getGraphics().drawImage(image, 0, 0, null);
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ImageIO.write(outputImage, ext, bos);
+			ImageIO.write(outputImage, "jpg", bos);
 			recipedao.setRecipeImage(bos.toByteArray(), recipe_id);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -85,69 +89,102 @@ public class UserController extends Controller {
 		// TODO image resizing should be on the side of gui
 	}
 	
+	public void setRecipe(String name, String user_id, String recipe_content, Date published_date, int difficulty,
+			int cost, int servings, String cooktime) {
+		recipedao.setRecipe(name, user_id, recipe_content, published_date, difficulty, cost, servings, cooktime);
+	}
+	
+	public void setRecipeCategory(int recipe_id, String categoryName) {
+		recipedao.setRecipeCategory(recipe_id, categoryName);
+	}
+	
+	public void setRecipeIngredient(int recipe_id, String ingredient_name, double amount, String unit_name) {
+		recipedao.setRecipeIngredient(recipe_id, ingredient_name, amount, unit_name);
+	}
+	
 	public void setRecipeLike(int recipe_id, String user_id) {
-		userdao.setRecipe_like(recipe_id, user_id);
+		userdao.setLike(recipe_id, user_id);
 	}
 	
         
         public void deleteRecipeLike(int recipe_id, String user_id) {
-            userdao.deleteRecipe_like(recipe_id, user_id);
+            userdao.deleteLike(recipe_id, user_id);
         }
            
         public void setRecipeBookmark(int recipe_id, String user_id) {
-            userdao.setRecipe_bookmark(recipe_id, user_id);
+            userdao.setBookmark(recipe_id, user_id);
         }
         
         public void deleteRecipeBookmark(int recipe_id, String user_id) {
-            userdao.deleteRecipe_bookmark(recipe_id, user_id);
+            userdao.deleteBookmark(recipe_id, user_id);
         }
         public boolean isLiked(int recipe_id, String user_id) {
-            for(Object o : userdao.getLikes(recipe_id, user_id)) {
-                return true;
-            }
-            return false;
+            return userdao.getLike(recipe_id, user_id) != null;
         }
         
         public boolean isBookmarked(int recipe_id, String user_id) {
-            for(Object o : userdao.getBookmarks(recipe_id, user_id)) {
-                return true;
-            }
-            return false;
+            return userdao.getBookmark(recipe_id, user_id) != null;
         }
 
 	public ImageIcon getImageIcon(byte[] arr) {
 		return new ImageIcon(arr);
 	}
 
+	public List<IngredientDTO> getAllIngredients() {
+		return recipedao.getAllIngredients();
+	}
+	public List<CategoryDTO> getAllCategories() {
+		return recipedao.getAllCategories();
+	}
+	public List<UnitDTO> getAllUnits() {
+		return recipedao.getAllUnits();
+	}
+	
+	
 	public List<Recipe_IngredientDTO> getRecipeIngredients(int recipe_id) {
 		return recipedao.getIngredients(recipe_id);
 	}
         public Recipe_reviewDTO getReview(int recipe_id, String user_id) {
-           for(Object o : userdao.getReviews(recipe_id, user_id)) {
-               return (Recipe_reviewDTO) o;
-           }
-           return null;
+           return userdao.getReview(recipe_id, user_id);
         }
         public List<Recipe_reviewDTO> getReviews(int recipe_id) {
-           return userdao.getReviews(recipe_id);
+           return recipedao.getRecipeReviews(recipe_id);
         }
         
         public void setRecipe_review(int recipe_id, String user_id, String review) {
-            userdao.setRecipe_review(recipe_id, user_id, review);
+            userdao.setReview(recipe_id, user_id, review);
         }
         
         public void updateRecipe_review(int recipe_id, String user_id, String review) {
-            userdao.updateRecipe_review(recipe_id, user_id, review);
+            userdao.updateReview(recipe_id, user_id, review);
         }
         
         public void setRecipe_report(int recipe_id, String user_id, String report){
-            userdao.setRecipe_report(recipe_id, user_id, report);
+            userdao.setReport(recipe_id, user_id, report);
         }
         
         public boolean isReported(int recipe_id, String user_id) {
-            for(Object o : userdao.getReports(recipe_id, user_id)) {
-                return true;
-            }
-            return false;
+            return userdao.getReport(recipe_id, user_id) != null;
         }
+        
+        public void deleteRecipe(int recipe_id) {
+        	recipedao.deleteRecipe(recipe_id);
+        }
+        
+     public double getTotalCal(int recipe_id) {
+    	 //if gPingredient exists: gram_per_ingredient * calories_per_g * amount
+    	 //else: calories_per_g * amount * g_per_unit
+    	 double totalcal = 0;
+    	 List<Recipe_IngredientDTO> ingredients = recipedao.getIngredients(recipe_id);
+    	 for(Recipe_IngredientDTO i : ingredients) {
+    		 if(i.getUnit_name().equals("whole")) {
+    			 totalcal += i.getIngredientDTO().getGram_per_ingredient() * i.getIngredientDTO().getCalories_per_g() *
+    					 i.getUnitDTO().getG_per_unit() * i.getAmount();
+    		 }
+    		 else {
+    			 totalcal += i.getIngredientDTO().getCalories_per_g() * i.getAmount() * i.getUnitDTO().getG_per_unit();
+    		 }
+    	 }
+    	 return totalcal;
+     }
 }

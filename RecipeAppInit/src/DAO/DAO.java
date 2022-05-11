@@ -1,8 +1,13 @@
 package DAO;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -14,18 +19,44 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import org.apache.ibatis.jdbc.ScriptRunner;
+
 
 
 public abstract class DAO {
 	
 	//사용하시면 되는 메소드들 시작:
-	protected <T> List<T> readContent(String query, Class<?> c) {
+	
+	protected boolean isExists(String query, Object... obj) {
+		try {
+			initConnect();
+			initPstmt(query, obj);
+			conn.commit();
+			return rs.next();
+		} catch (ClassNotFoundException | SQLException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				exit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+	
+	protected <T> List<T> getDTOs(Class<T> c, String query, Object... obj) {
 		List<T> content = null;
 		try {
 			initConnect();
-			initStmt(query);
+			initPstmt(query, obj);
 			content = getContentList(c);
 			conn.commit();
 		} catch (Exception e) {
@@ -42,59 +73,13 @@ public abstract class DAO {
 				e.printStackTrace();
 			}
 		}
-	
 		return content;
 	}
 	
-	protected <T> List<T> readContent(String query, Consumer<PreparedStatement> con, Class<?> c) {
-		List<T> content = null;
+	protected void updateTable(String query, Object... obj) {
 		try {
 			initConnect();
-			initPstmt(query, con);
-			content = getContentList(c);
-			conn.commit();
-		} catch (Exception e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		} finally {
-			try {
-				exit();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return content;
-	}
-	
-	protected void updateTable(String query) {
-		try {
-			initConnect();
-			initStmtUpdate(query);
-			conn.commit();
-		} catch (Exception e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		} finally {
-			try {
-				exit();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	protected void updateTable(String query, Consumer<PreparedStatement> con) {
-		try {
-			initConnect();
-			initPstmtUpdate(query, con);
+			initPstmtUpdate(query, obj);
 			conn.commit();
 		} catch (Exception e) {
 			try {
@@ -126,13 +111,18 @@ public abstract class DAO {
 	private PreparedStatement pstmt;
 	private ResultSet rs;
 	private ResultSetMetaData rsmd;
-	private CallableStatement cstmt;
+	Map<Class<?>, Method> rsMethods;
+	Map<Class<?>, Method> psMethods;
 	
-	private DAO() {}
-
 	public DAO(String username, String password) {
 		this.username = username;
 		this.password = password;
+		try {
+			rsMethods = getRSMethods();
+			psMethods = getPstmtMethods();
+		} catch (NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void initConnect() throws SQLException, ClassNotFoundException {
@@ -141,28 +131,24 @@ public abstract class DAO {
 		conn = DriverManager.getConnection(url, username, password);
 		conn.setAutoCommit(false);
 	}
-	
-	private void initStmt(String query) throws SQLException {
-		stmt = conn.createStatement();
-		rs = stmt.executeQuery(query);
-	}
-	
-	private void initStmtUpdate(String query) throws SQLException {
-		stmt = conn.createStatement();
-		stmt.executeUpdate(query);
-	}
 
-	private void initPstmt(String query, Consumer<PreparedStatement> con) throws SQLException {
+	private void initPstmt(String query, Object... obj) throws SQLException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		pstmt = conn.prepareStatement(query);
-		con.accept(pstmt);
+		for(int i = 0; i < obj.length; i ++) {
+			psMethods.get(obj[i].getClass()).invoke(pstmt, i+1, obj[i]);
+		}
+		
 		rs = pstmt.executeQuery();
 	}
 	
-	private void initPstmtUpdate(String query, Consumer<PreparedStatement> con) throws SQLException {
+	private void initPstmtUpdate(String query, Object... obj) throws SQLException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		pstmt = conn.prepareStatement(query);
-		con.accept(pstmt);
+		for(int i = 0; i < obj.length; i ++) {
+			psMethods.get(obj[i].getClass()).invoke(pstmt, i+1, obj[i]);
+		}
 		pstmt.executeUpdate();
 	}
+	
 	
 	private List<String> getAllFields(Class<?> c) {
 		List<String> fields = Arrays.stream(c.getDeclaredFields()).map(e -> e.getName()).collect(Collectors.toList());
@@ -190,7 +176,6 @@ public abstract class DAO {
 	private List<String> temp = new ArrayList<String>();
 	private Object setDTO(Class<?> c) throws Exception {
 		Object obj = c.getDeclaredConstructor().newInstance();
-		Map<Class<?>, Method> methods = getRSMethods();
 		for(String str :getAllFields(c)) {
 			Field field = c.getDeclaredField(str);
 			field.setAccessible(true);
@@ -210,7 +195,7 @@ public abstract class DAO {
 			//rs is an instance of Method that reflects the method being invoked
 			Field field = c.getDeclaredField(str2);
 			field.setAccessible(true);
-			field.set(obj, methods.get(field.getType()).invoke(rs, str2));
+			field.set(obj, rsMethods.get(field.getType()).invoke(rs, str2));
 		}
 		
 		//prevent instantiating redundant object when all fields in said object is null
@@ -225,8 +210,6 @@ public abstract class DAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	//using recursion
-	//getting retaining fields of class and table columns including class within class using recursion
 	private <T> List<T> getContentList(Class<?> c) throws Exception {
 		List<T> content = new ArrayList<>();
 		while(rs.next()) {
@@ -258,18 +241,50 @@ public abstract class DAO {
 	//method to get every needed methods of resultset using reflection, then stream filtering mapping it to each return value
 	private Map<Class<?>, Method> getRSMethods() throws NoSuchMethodException, SecurityException {
 		Class<?> resultSet = ResultSet.class;
-		Method[] rsMethods = resultSet.getMethods();
+		Method[] rsMethods = resultSet.getMethods(); 
 		Map<Class<?>, Method> rsmethods = Arrays.stream(rsMethods)
 				.filter(e -> e.getParameterCount() == 1)
 				.filter(e -> e.getParameterTypes()[0].equals(String.class))
 				.filter(e -> e.getName().substring(3).compareToIgnoreCase(e.getReturnType().getSimpleName()) == 0)
 				.collect(Collectors.toMap(e -> e.getReturnType(), e -> e));
+		//manually adding setBytes method
 		rsmethods.put(byte[].class, ResultSet.class.getMethod("getBytes", String.class));
 		
 		return rsmethods;
 	}
 	
+	//method to get every needed methods of preparedStatement using reflection
+	private Map<Class<?>, Method> getPstmtMethods() throws NoSuchMethodException, SecurityException {
+		Class<?> preparedStatement = PreparedStatement.class;
+		Method[] psMethods = preparedStatement.getMethods(); 
+		Map<Class<?>, Method> methods = Arrays.stream(psMethods)
+				.filter(e -> e.getParameterCount() == 2)
+				.filter(e -> e.getParameterTypes()[0].equals(int.class))
+				.filter(e -> e.getReturnType().equals(Void.TYPE))
+				.filter(e -> e.getName().startsWith("set"))
+				.filter(e -> !e.getName().substring(3).startsWith("N"))
+				.filter(e -> !e.getName().contains("Stream"))
+				.collect(Collectors.toMap(e -> e.getParameterTypes()[1], e -> e));
+		//manually adding setBytes method
+//		methods.put(byte[].class, preparedStatement.getMethod("setBytes", String.class));
+		methods.put(Integer.class, preparedStatement.getMethod("setInt", int.class, int.class));
+		methods.put(Double.class, preparedStatement.getMethod("setDouble", int.class, double.class));
+		return methods;
+	}
 	
+	public void runScript(File file) {
+		
+	      //Creating a reader object
+	      Reader reader;
+		try {
+			initConnect();
+			ScriptRunner sr = new ScriptRunner(conn);
+			reader = new BufferedReader(new FileReader(file));
+			sr.runScript(reader);
+		} catch (FileNotFoundException | ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
 
 

@@ -7,7 +7,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/oraclexe/app/oracle/product/11.2.0/server/jdbc/lib/ojdbc6.jar"/>
-	<classpathentry kind="lib" path="C:/Users/EZEN/Desktop/JavaGY/eclipse/lombok.jar"/>
-	<classpathentry kind="lib" path="C:/Users/EZEN/Downloads/mybatis-3.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nicol/Desktop/Java/eclipse/lombok.jar"/>
+	<classpathentry kind="lib" path="D:/Download/mybatis-3.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

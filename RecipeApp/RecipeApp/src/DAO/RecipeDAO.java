@@ -9,6 +9,7 @@ import DTO.CategoryDTO;
 import DTO.IngredientDTO;
 import DTO.RecipeDTO;
 import DTO.Recipe_IngredientDTO;
+import DTO.Recipe_bookmarkDTO;
 import DTO.Recipe_likeDTO;
 import DTO.Recipe_reviewDTO;
 import DTO.UnitDTO;
@@ -119,7 +120,7 @@ public class RecipeDAO extends DAO {
 		return  getDTOs(Recipe_reviewDTO.class, "SELECT * FROM recipe_reviews WHERE recipe_id = ?", recipe_id);
 	}
 	
-	
+
 	//TODO utilities
 	public int getRecipeId(String name, String user_id) {
 		int recipe_id = getDTOs(RecipeDTO.class, "SELECT recipe_id FROM recipes WHERE recipe_name = ? AND user_id = ?"

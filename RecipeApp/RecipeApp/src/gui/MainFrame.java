@@ -174,6 +174,10 @@ public class MainFrame extends javax.swing.JFrame {
         cbCategory = new javax.swing.JComboBox<>();
         jButton1 = new javax.swing.JButton();
         lbimage = new javax.swing.JLabel();
+        jPanel19 = new javax.swing.JPanel();
+        jButton24 = new javax.swing.JButton();
+        scroolablep3 = new javax.swing.JScrollPane();
+        tableBookmarked = new javax.swing.JTable();
         jComboBox4 = new javax.swing.JComboBox<>();
         jButton11 = new javax.swing.JButton();
         pAdmin = new javax.swing.JPanel();
@@ -1146,6 +1150,12 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel42.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel42.setText("Ingredients: ");
 
+        cbIngredients.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbIngredientsActionPerformed(evt);
+            }
+        });
+
         tfAmount.setText("1");
         tfAmount.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1356,6 +1366,81 @@ public class MainFrame extends javax.swing.JFrame {
 
         jTabbedPane2.addTab("Create new recipe", jPanel9);
 
+        jButton24.setText("View");
+        jButton24.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton24ActionPerformed(evt);
+            }
+        });
+
+        tableBookmarked.setAutoCreateRowSorter(true);
+        tableBookmarked.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Recipe name", "Author", "Published date", "Difficulty", "Est. Cost", "Cooking time", "Likes", "Calories"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tableBookmarked.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableBookmarked.getTableHeader().setReorderingAllowed(false);
+        scroolablep3.setViewportView(tableBookmarked);
+        if (tableBookmarked.getColumnModel().getColumnCount() > 0) {
+            tableBookmarked.getColumnModel().getColumn(1).setMinWidth(150);
+            tableBookmarked.getColumnModel().getColumn(1).setMaxWidth(150);
+            tableBookmarked.getColumnModel().getColumn(2).setMinWidth(100);
+            tableBookmarked.getColumnModel().getColumn(2).setMaxWidth(100);
+            tableBookmarked.getColumnModel().getColumn(3).setMinWidth(80);
+            tableBookmarked.getColumnModel().getColumn(3).setMaxWidth(80);
+            tableBookmarked.getColumnModel().getColumn(4).setMinWidth(100);
+            tableBookmarked.getColumnModel().getColumn(4).setMaxWidth(100);
+            tableBookmarked.getColumnModel().getColumn(5).setMinWidth(90);
+            tableBookmarked.getColumnModel().getColumn(5).setMaxWidth(90);
+            tableBookmarked.getColumnModel().getColumn(6).setMinWidth(60);
+            tableBookmarked.getColumnModel().getColumn(6).setMaxWidth(60);
+            tableBookmarked.getColumnModel().getColumn(7).setMinWidth(80);
+            tableBookmarked.getColumnModel().getColumn(7).setMaxWidth(80);
+        }
+
+        javax.swing.GroupLayout jPanel19Layout = new javax.swing.GroupLayout(jPanel19);
+        jPanel19.setLayout(jPanel19Layout);
+        jPanel19Layout.setHorizontalGroup(
+            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel19Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton24)
+                .addGap(36, 36, 36))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel19Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(scroolablep3, javax.swing.GroupLayout.DEFAULT_SIZE, 976, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel19Layout.setVerticalGroup(
+            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel19Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton24)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addComponent(scroolablep3, javax.swing.GroupLayout.PREFERRED_SIZE, 544, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        jTabbedPane2.addTab("Bookmarked", jPanel19);
+
         jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "EN", "KR" }));
 
         jButton11.setText("Logout");
@@ -1537,7 +1622,7 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel15.setLayout(jPanel15Layout);
         jPanel15Layout.setHorizontalGroup(
             jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane9, javax.swing.GroupLayout.DEFAULT_SIZE, 1001, Short.MAX_VALUE)
+            .addComponent(jScrollPane9, javax.swing.GroupLayout.DEFAULT_SIZE, 1002, Short.MAX_VALUE)
             .addGroup(jPanel15Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jButton22)
@@ -1554,7 +1639,7 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(jButton22))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane9, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addContainerGap(55, Short.MAX_VALUE))
         );
 
         jTabbedPane3.addTab("List recipes", jPanel15);
@@ -1570,7 +1655,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 934, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton23))
-                .addContainerGap(61, Short.MAX_VALUE))
+                .addContainerGap(62, Short.MAX_VALUE))
         );
         jPanel18Layout.setVerticalGroup(
             jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1579,7 +1664,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton23)
-                .addContainerGap(531, Short.MAX_VALUE))
+                .addContainerGap(533, Short.MAX_VALUE))
         );
 
         jTabbedPane3.addTab("Run sql command", jPanel18);
@@ -1653,6 +1738,7 @@ public class MainFrame extends javax.swing.JFrame {
        CardLayout cl = (CardLayout) cardP.getLayout();
         cl.show(cardP, "cardMyRecipe");
         updateRecipes(tableMyrecipe, userController.getRecipesFilter("author", currentUser));
+        updateRecipes(tableBookmarked, userController.getBookmarkedRecipes(currentUser));
         updateMyrecipe();
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -1927,6 +2013,20 @@ public class MainFrame extends javax.swing.JFrame {
         CardLayout cl = (CardLayout) cardP.getLayout();
         cl.show(cardP, "cardLogin");
     }//GEN-LAST:event_jButton19ActionPerformed
+
+    private void cbIngredientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbIngredientsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbIngredientsActionPerformed
+
+    private void jButton24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton24ActionPerformed
+        int row = tableBookmarked.getSelectedRow();
+        if(row == -1)
+            return;
+        String name = (String) tableBookmarked.getValueAt(row, 0);
+        String id = (String) tableBookmarked.getValueAt(row, 1);
+        int recipe_id = userController.getRecipeId(name, id);
+        selectRecipe(recipe_id);
+    }//GEN-LAST:event_jButton24ActionPerformed
     
     private void updateRecipes(JTable table, List<RecipeDTO> recipes) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -1971,6 +2071,10 @@ public class MainFrame extends javax.swing.JFrame {
     }
     
     private void updateMyrecipe() {
+        cbIngredients.removeAllItems();
+        cbCategory.removeAllItems();
+        tbUnit.removeAllItems();
+        
         userController.getAllIngredients().stream().map(e -> e.getIngredient_name()).forEach(cbIngredients::addItem);
         userController.getAllCategories().stream().map(e -> e.getCategory_name()).forEach(cbCategory::addItem);
         userController.getAllUnits().stream().map(e -> e.getUnit_name()).forEach(tbUnit::addItem);
@@ -2055,17 +2159,7 @@ public class MainFrame extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, str, null, JOptionPane.INFORMATION_MESSAGE);
     }
     
-    public static void main(String args[]) {
-        com.formdev.flatlaf.FlatLightLaf.setup();
-
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainFrame().setVisible(true);
-            }
-        });
-    }
+    
 //        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -2094,6 +2188,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton21;
     private javax.swing.JButton jButton22;
     private javax.swing.JButton jButton23;
+    private javax.swing.JButton jButton24;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
@@ -2145,6 +2240,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel17;
     private javax.swing.JPanel jPanel18;
+    private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -2188,7 +2284,9 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPasswordField pfadminpwd;
     private javax.swing.JScrollPane scroolablep;
     private javax.swing.JScrollPane scroolablep2;
+    private javax.swing.JScrollPane scroolablep3;
     private javax.swing.JSpinner spServings;
+    private javax.swing.JTable tableBookmarked;
     private javax.swing.JTable tableMyrecipe;
     private javax.swing.JTable tableRecipe;
     private javax.swing.JToggleButton tbBookmark;

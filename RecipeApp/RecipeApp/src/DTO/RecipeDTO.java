@@ -23,6 +23,5 @@ public class RecipeDTO {
 	private Recipe_reportDTO recipe_reportDTO;
 	private Recipe_IngredientDTO recipe_ingredientDTO;
 	private Recipe_categoryDTO recipe_categoryDTO;
-	private UserDTO userDTO;
 
 }

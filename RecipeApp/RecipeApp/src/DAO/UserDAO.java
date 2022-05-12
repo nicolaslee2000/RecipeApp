@@ -91,6 +91,9 @@ public class UserDAO extends DAO implements Authentication {
 		return getDTOs(Recipe_bookmarkDTO.class, "SELECT * FROM recipe_bookmarks WHERE recipe_id = ? AND user_id = ?",
 				recipe_id, user_id).stream().findFirst().orElse(null);
 	}
+	public List<Recipe_bookmarkDTO> getBookmarks(String user_id) {
+		return getDTOs(Recipe_bookmarkDTO.class, "SELECT * FROM recipe_bookmarks WHERE user_id = ?", user_id);
+	}
 	
 	//weak entities update
 	public void updateReview(int recipe_id, String user_id, String review) {

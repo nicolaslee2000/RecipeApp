@@ -14,9 +14,9 @@ import DAO.RecipeDAO;
 import DAO.UserDAO;
 
 public class InitData {
-	RecipeDAO recipedao = new RecipeDAO("recipe_admin_test", "a1234");
-	UserDAO userdao = new UserDAO("recipe_admin_test", "a1234");
-	AdminDAO admindao = new AdminDAO("recipe_admin_test", "a1234");
+	RecipeDAO recipedao = new RecipeDAO("recipe_admin", "a1234");
+	UserDAO userdao = new UserDAO("recipe_admin", "a1234");
+	AdminDAO admindao = new AdminDAO("recipe_admin", "a1234");
 	InitData() {
 		setUnits();
 		setIngredients();
@@ -34,7 +34,7 @@ public class InitData {
 	}
 	
 	private void setAdmin() {
-		admindao.addAdmin("recipe_admin_test", "a1234");
+		admindao.addAdmin("recipe_admin", "a1234");
 	}
 	
 	private void setUnits() {
